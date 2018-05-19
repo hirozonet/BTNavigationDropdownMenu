@@ -220,6 +220,15 @@ open class BTNavigationDropdownMenu: UIView {
         }
     }
 
+    open var menuHeaderText: String? {
+        get {
+            return self.configuration.menuHeaderText
+        }
+        set(value) {
+            self.configuration.menuHeaderText = value
+        }
+    }
+
     open var didSelectItemAtIndexHandler: ((_ indexPath: Int) -> ())?
     open var isShown: Bool!
 
@@ -437,8 +446,32 @@ open class BTNavigationDropdownMenu: UIView {
         self.isShown = true
 
         // Table view header
-        let headerView = UIView(frame: CGRect(x: 0, y: 0, width: self.frame.width, height: 300))
+        let headerView = UIView(frame: CGRect(x: 0, y: 0, width: UIApplication.shared.keyWindow!.frame.size.width, height: 300))
         headerView.backgroundColor = self.configuration.cellBackgroundColor
+        if let menuHeaderText = self.menuHeaderText {
+            let horizontalMargin: CGFloat = 20
+            let labelTop = headerView.frame.size.height
+            let labelHeight = CGFloat(truncating: self.cellHeight)
+            let labelFrame: CGRect
+            if self.cellTextLabelAlignment == .center {
+                labelFrame = CGRect(x: 0, y: labelTop , width: headerView.frame.size.width, height: labelHeight)
+            } else if self.cellTextLabelAlignment == .left {
+                labelFrame = CGRect(x: horizontalMargin, y: labelTop, width: headerView.frame.size.width, height: labelHeight)
+            } else {
+                labelFrame = CGRect(x: -horizontalMargin, y: labelTop, width: headerView.frame.size.width, height: labelHeight)
+            }
+            let label = UILabel(frame: labelFrame)
+            
+            label.text = menuHeaderText
+            label.textColor = self.cellTextLabelColor
+            label.font = self.cellTextLabelFont
+            let separator = UIView(frame: CGRect(x: 0, y: labelFrame.origin.y + labelFrame.size.height, width: headerView.frame.size.width, height: 0.5))
+            separator.backgroundColor = self.cellSeparatorColor
+            separator.autoresizingMask = UIViewAutoresizing.flexibleWidth
+            headerView.frame.size.height = headerView.frame.size.height + label.frame.size.height
+            headerView.addSubview(label)
+            headerView.addSubview(separator)
+        }
         self.tableView.tableHeaderView = headerView
 
         self.topSeparator.backgroundColor = self.configuration.cellSeparatorColor
